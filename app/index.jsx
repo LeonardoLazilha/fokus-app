@@ -1,16 +1,61 @@
+import { useState } from "react";
 import { Text, View, StyleSheet, Image, Pressable } from "react-native";
+import { FokusButton } from "../components/FokusButton";
+
+
+const pomodoro = [
+  {
+    id: 'focus',
+    initialValue: 25 * 60,
+    image: require('./pomodoro.png'),
+    label: 'Foco'
+  },
+  {
+    id: 'short',
+    initialValue: 5 * 60,
+    image: require('./short.png'),
+    label: 'Pausa curta'
+  },
+  {
+    id: 'long',
+    initialValue: 15 * 60,
+    image: require('./long.png'),
+    label: 'Pausa Longa'
+  }
+]
 
 export default function Index() {
+  const [timerType, setTimerType] = useState(pomodoro[0])
+  const [isPlaying, setIsPlaying] = useState(false)
+
+  const formatTime = (seconds) => {
+    const minutes = Math.floor(seconds / 60)
+    const remainingSeconds = seconds % 60
+    return `${minutes.toString().padStart(2, '0')}:${remainingSeconds.toString().padStart(2, '0')}`
+  }
+
   return (
-    <View style={styles.container}>
-      <View style={styles.content}>
-        <Image source={require('./pomodoro.png')} style={styles.image}/>
-        <View style={styles.actions}>
-          <Text style={styles.timer}>25:00</Text>
-          <Pressable style={styles.button}>
-            <Text style={styles.buttonText}>Começar</Text>
-          </Pressable>
+    <View
+      style={styles.container}
+    >
+      <Image source={timerType.image} style={styles.image}/>
+      <View style={styles.actions}>
+        <View style={styles.context}>
+          {pomodoro.map((p) => (
+            <Pressable 
+              key={p.id}
+              style={[styles.contextButton, timerType.id === p.id && styles.contextButtonActive]}
+              onPress={() => setTimerType(p)}
+            >
+              <Text style={styles.contextButtonText}>{p.label}</Text>
+            </Pressable>
+          ))}
         </View>
+        <Text style={styles.timer}>{formatTime(timerType.initialValue)}</Text>
+        <FokusButton 
+          isPlaying={isPlaying}
+          onPress={() => setIsPlaying(!isPlaying)}
+        />
       </View>
       <View style={styles.footer}>
         <Text style={styles.footerText}>Projeto de aprendizado desenvolvido por</Text>
@@ -23,13 +68,9 @@ export default function Index() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#021123',
-    paddingVertical: 40
-  },
-  content: {
-    flex: 1,
     justifyContent: "center",
     alignItems: "center",
+    backgroundColor: '#021123',
     gap: 40
   },
   image: {
@@ -52,17 +93,6 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     textAlign: 'center'
   },
-  button: {
-    backgroundColor: '#B872FF',
-    borderRadius: 32,
-    padding: 8
-  },
-  buttonText: {
-    textAlign: 'center',
-    color: '#021123',
-    fontSize: 18,
-    fontWeight: 700
-  },
   footer: {
     width: '80%'
   },
@@ -70,5 +100,21 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     color: '#98A0A8',
     fontSize: 12.5
-  }
+  },
+  context: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8
+  },
+  contextButtonText: {
+    padding: 8,
+    color: '#fff',
+    fontSize: 12.5,
+    fontWeight: 700
+  },
+  contextButtonActive: {
+    backgroundColor: '#144480',
+    borderRadius: 8,
+    padding: 8
+  },
 })
